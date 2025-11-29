@@ -1,0 +1,26 @@
+# Scanner IP Local - Dépendances Python
+
+# Scan réseau
+scapy>=2.5.0
+
+# Informations réseau
+netifaces>=0.11.0
+
+# Interface graphique moderne
+ttkbootstrap>=1.10.1
+
+# Requêtes HTTP (pour l'API NVD)
+requests>=2.31.0
+
+# Interface graphique (note: tkinter est inclus avec Python sur la plupart des systèmes)
+# Si tkinter n'est pas disponible, installer avec: sudo apt-get install python3-tk
+
+# Note: Sur certains systèmes, vous devrez peut-être installer des dépendances système:
+# Ubuntu/Debian:
+#   sudo apt-get install python3-tk python3-dev libpcap-dev
+#
+# Fedora/RHEL:
+#   sudo dnf install python3-tkinter libpcap-devel
+#
+# Arch Linux:
+#   sudo pacman -S tk libpcap
