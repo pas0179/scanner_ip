@@ -422,6 +422,11 @@ class IPScanner:
         # Détecter si c'est l'hôte local
         is_localhost = self.is_local_host(ip)
 
+        # Si le ping est désactivé (scan forcé), on considère l'hôte comme online
+        if not scan_config.get('ping', True):
+            result['status'] = 'online'
+            result['response_time'] = 0.0
+
         # Ping
         if scan_config.get('ping', True):
             if self.has_root and scan_config.get('use_scapy', True):

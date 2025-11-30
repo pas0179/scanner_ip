@@ -1,0 +1,133 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                    SCANNER WIFI - DÉMARRAGE RAPIDE                           ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+✅ OUI, vous pouvez intégrer un scanner WiFi pour récupérer les hashs !
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📦 FICHIERS CRÉÉS :
+
+   1. wifi_scanner.py           → Module principal (à importer)
+   2. test_wifi_scanner.py      → Test complet et interactif
+   3. list_wifi_networks.py     → Lister les réseaux WiFi
+   4. quick_wifi_hash.py        → Capturer un handshake rapidement
+   5. WIFI_INTEGRATION.md       → Guide pour intégrer dans la GUI
+   6. README_WIFI.md            → Documentation complète
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🚀 INSTALLATION (3 minutes) :
+
+   1. Installer aircrack-ng :
+      $ sudo apt-get update
+      $ sudo apt-get install aircrack-ng hcxtools
+
+   2. Vérifier l'installation :
+      $ airmon-ng
+
+   3. Tester immédiatement :
+      $ sudo python3 list_wifi_networks.py
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚡ UTILISATION RAPIDE :
+
+   SCÉNARIO 1 - Lister les réseaux WiFi disponibles :
+   --------------------------------------------------
+   $ sudo python3 list_wifi_networks.py
+
+   → Affiche tous les réseaux WiFi avec SSID, BSSID, canal, chiffrement
+
+
+   SCÉNARIO 2 - Capturer un handshake :
+   ------------------------------------
+   $ sudo python3 list_wifi_networks.py              # 1. Identifier le réseau
+   $ sudo python3 quick_wifi_hash.py [BSSID] [CANAL] # 2. Capturer le handshake
+
+   Exemple :
+   $ sudo python3 quick_wifi_hash.py AA:BB:CC:DD:EE:FF 6
+
+   → Capture le handshake et extrait le hash automatiquement
+
+
+   SCÉNARIO 3 - Test complet interactif :
+   ---------------------------------------
+   $ sudo python3 test_wifi_scanner.py
+
+   → Guide pas-à-pas avec toutes les fonctionnalités
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📖 UTILISER DANS VOTRE CODE :
+
+   from wifi_scanner import WiFiScanner
+
+   scanner = WiFiScanner()
+   mon_interface = scanner.enable_monitor_mode('wlan0')
+   networks = scanner.scan_networks_airodump(mon_interface, duration=30)
+
+   for net in networks:
+       print(f"{net.ssid} - {net.bssid} - {net.encryption}")
+
+   scanner.disable_monitor_mode(mon_interface)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🎨 INTÉGRER DANS LA GUI :
+
+   Consultez le fichier WIFI_INTEGRATION.md pour :
+   - Ajouter un onglet WiFi dans gui.py
+   - Code complet pour l'interface
+   - Gestion des événements
+   - Threading pour ne pas bloquer la GUI
+
+═══════════════════════════════════════════════════════════════════════════════
+
+⚠️  IMPORTANT :
+
+   ✓ Nécessite les droits ROOT/SUDO (pour le mode moniteur)
+   ✓ Utilisez UNIQUEMENT sur VOS propres réseaux
+   ✓ Audits de sécurité avec autorisation écrite uniquement
+   ✗ L'utilisation sans autorisation est ILLÉGALE
+
+═══════════════════════════════════════════════════════════════════════════════
+
+🔧 DÉPANNAGE RAPIDE :
+
+   Problème : "Aucune interface WiFi"
+   → Vérifiez : iwconfig
+
+   Problème : "Échec mode moniteur"
+   → Exécutez : sudo airmon-ng check kill
+   → Puis : sudo airmon-ng start wlan0
+
+   Problème : "Permission denied"
+   → Toujours utiliser : sudo python3 script.py
+
+═══════════════════════════════════════════════════════════════════════════════
+
+📚 WORKFLOW COMPLET :
+
+   1. Scanner les réseaux
+      $ sudo python3 list_wifi_networks.py
+
+   2. Capturer le handshake (sur VOTRE réseau)
+      $ sudo python3 quick_wifi_hash.py AA:BB:CC:DD:EE:FF 6
+
+   3. Cracker le hash (test de sécurité)
+      $ hashcat -m 22000 hash.hc22000 rockyou.txt
+      OU
+      $ aircrack-ng -w rockyou.txt handshake.pcap
+
+═══════════════════════════════════════════════════════════════════════════════
+
+💡 COMMENCER MAINTENANT :
+
+   $ sudo python3 list_wifi_networks.py
+
+   Puis lisez README_WIFI.md pour plus de détails !
+
+═══════════════════════════════════════════════════════════════════════════════
+
+Bon hacking (éthique) ! 🎩
