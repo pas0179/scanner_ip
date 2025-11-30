@@ -162,27 +162,29 @@ def run_nmap_advanced_scan(ip: str, ports: List[int], nmap_options: Dict, sudo_p
     try:
         import os
 
-        # Vérifier si on a besoin de sudo
-        needs_sudo = False
+        # Déterminer si le scan nécessite les droits root
         scan_type = nmap_options.get('scan_type', 'default')
+        scan_requires_root = (scan_type in ['syn', 'aggressive', 'udp', 'fin', 'null', 'xmas'] or
+                              nmap_options.get('os_detection', False) or
+                              nmap_options.get('traceroute', False))
 
-        # Ces options nécessitent root
-        if (scan_type in ['syn', 'aggressive'] or
-            nmap_options.get('os_detection', False) or
-            nmap_options.get('traceroute', False)):
-            needs_sudo = os.geteuid() != 0
+        is_already_root = os.geteuid() == 0
+        needs_sudo_prompt = scan_requires_root and not is_already_root
 
         # Construire la commande Nmap
         nmap_cmd = []
 
-        # Ajouter sudo si nécessaire
-        if needs_sudo:
+        # Gérer les privilèges
+        if needs_sudo_prompt:
             if sudo_password:
                 nmap_cmd.extend(['sudo', '-S'])  # -S pour lire le mot de passe depuis stdin
-                logger.info("Utilisation de sudo pour le scan Nmap")
+                logger.info("Utilisation de sudo -S pour le scan Nmap")
             else:
-                logger.warning("Sudo requis mais pas de mot de passe fourni, certaines options seront limitées")
-                needs_sudo = False
+                logger.warning("Sudo requis mais pas de mot de passe fourni, certaines options seront limitées.")
+        elif scan_requires_root and is_already_root:
+            # Déjà root, on ajoute 'sudo' pour garantir l'exécution en tant que root dans le sous-processus.
+            nmap_cmd.append('sudo')
+            logger.info("Exécution en tant que root, 'sudo' ajouté à la commande Nmap pour garantir les privilèges.")
 
         nmap_cmd.append('nmap')
 
@@ -211,11 +213,13 @@ def run_nmap_advanced_scan(ip: str, ports: List[int], nmap_options: Dict, sudo_p
 
         # Détection OS
         if nmap_options.get('os_detection', False):
-            if needs_sudo or os.geteuid() == 0:
+            # Vérifier si nous avons les privilèges nécessaires
+            has_privileges = (needs_sudo_prompt and sudo_password) or is_already_root
+            if scan_requires_root and has_privileges:
                 nmap_cmd.append('-O')
-            else:
-                logger.warning("OS detection (-O) nécessite les droits root")
-                nmap_cmd.append('--osscan-guess')  # Alternative sans root
+            elif scan_requires_root: # Si on a besoin de root mais qu'on ne l'a pas
+                logger.warning("La détection d'OS (-O) nécessite les droits root. Utilisation de --osscan-guess.")
+                nmap_cmd.append('--osscan-guess')
 
         # Détection de version
         if nmap_options.get('version_detection', False):
@@ -281,7 +285,7 @@ def run_nmap_advanced_scan(ip: str, ports: List[int], nmap_options: Dict, sudo_p
         nmap_cmd.insert(-1, '2s')
 
         # Exécuter Nmap avec Popen pour lire la sortie en temps réel
-        if needs_sudo and sudo_password:
+        if needs_sudo_prompt and sudo_password:
             # Avec sudo
             process = subprocess.Popen(
                 nmap_cmd,
